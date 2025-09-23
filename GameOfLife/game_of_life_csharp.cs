@@ -7,10 +7,10 @@ namespace GameOfLife
     {
         private const int Width = 50;
         private const int Height = 30;
-        private static bool[,] grid = new bool[Height, Width];
-        private static bool[,] nextGrid = new bool[Height, Width];
+        private static readonly bool[,] grid = new bool[Height, Width];
+        private static readonly bool[,] nextGrid = new bool[Height, Width];
 
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("Conway's Game of Life");
             Console.WriteLine("Press any key to start, ESC to exit during simulation");
@@ -82,7 +82,7 @@ namespace GameOfLife
             SetCell(6, 21, true);
 
             // Random pattern in one corner
-            Random rand = new Random();
+            Random rand = new();
             for (int i = Height - 10; i < Height - 2; i++)
             {
                 for (int j = Width - 15; j < Width - 2; j++)
