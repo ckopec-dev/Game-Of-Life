@@ -26,7 +26,7 @@ namespace GameOfLife
             {
                 DisplayGrid();
                 UpdateGrid();
-                Thread.Sleep(200); // Delay between generations
+                Thread.Sleep(100); // Delay between generations
 
                 // Check for ESC key to exit
                 if (Console.KeyAvailable)
