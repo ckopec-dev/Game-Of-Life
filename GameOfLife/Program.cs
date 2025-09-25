@@ -3,11 +3,14 @@ namespace GameOfLife
 {
     class Program
     {
-        private const int GENERATION_DELAY = 100; // milliseconds
+        private const int GENERATION_DELAY = 25; // milliseconds
         private const int WIDTH = 140;
-        private const int HEIGHT = 60;
+        private const int HEIGHT = 55;
         private static readonly bool[,] grid = new bool[HEIGHT, WIDTH];
         private static readonly bool[,] nextGrid = new bool[HEIGHT, WIDTH];
+        private static readonly List<string> gridHistory = [];
+        private static int loopStart = -1;
+        private static int loopLength = -1;
 
         static void Main()
         {
@@ -24,6 +27,19 @@ namespace GameOfLife
             while (true)
             {
                 DisplayGrid();
+
+                string currentGridState = GridToString();
+                bool loopDetected = DetectLoop(currentGridState);
+
+                if (loopDetected)
+                {
+                    DisplayLoopInfo();
+                    Console.WriteLine("Loop detected! Press any key to continue or ESC to exit.");
+                    ConsoleKeyInfo key = Console.ReadKey(true);
+                    if (key.Key == ConsoleKey.Escape)
+                        break;
+                }
+
                 UpdateGrid();
                 Thread.Sleep(GENERATION_DELAY); // Delay between generations
 
@@ -212,6 +228,99 @@ namespace GameOfLife
             }
 
             return count;
+        }
+
+        static string GridToString()
+        {
+            var result = new System.Text.StringBuilder();
+            for (int i = 0; i < HEIGHT; i++)
+            {
+                for (int j = 0; j < WIDTH; j++)
+                {
+                    result.Append(grid[i, j] ? '1' : '0');
+                }
+            }
+            return result.ToString();
+        }
+
+        static bool DetectLoop(string currentState)
+        {
+            // Add current state to history
+            gridHistory.Add(currentState);
+
+            // Only check for loops if we have enough history
+            if (gridHistory.Count < 3)
+                return false;
+
+            // Check for immediate repetition (period 1 - still life)
+            if (gridHistory.Count >= 2 && gridHistory[^1] == gridHistory[^2])
+            {
+                loopStart = gridHistory.Count - 2;
+                loopLength = 1;
+                return true;
+            }
+
+            // Check for longer loops (up to half the current history length)
+            int maxPeriod = Math.Min(20, gridHistory.Count / 2); // Limit check to avoid performance issues
+
+            for (int period = 2; period <= maxPeriod; period++)
+            {
+                if (gridHistory.Count >= period * 2)
+                {
+                    bool isLoop = true;
+
+                    // Check if the last 'period' states repeat
+                    for (int i = 0; i < period; i++)
+                    {
+                        int currentIndex = gridHistory.Count - 1 - i;
+                        int previousIndex = currentIndex - period;
+
+                        if (gridHistory[currentIndex] != gridHistory[previousIndex])
+                        {
+                            isLoop = false;
+                            break;
+                        }
+                    }
+
+                    if (isLoop)
+                    {
+                        loopStart = gridHistory.Count - period * 2;
+                        loopLength = period;
+                        return true;
+                    }
+                }
+            }
+
+            // Clean up history if it gets too long (keep last 100 generations)
+            if (gridHistory.Count > 100)
+            {
+                gridHistory.RemoveAt(0);
+            }
+
+            return false;
+        }
+
+        static void DisplayLoopInfo()
+        {
+            Console.SetCursorPosition(0, HEIGHT + 5);
+            Console.WriteLine("═══ LOOP DETECTED ═══");
+
+            if (loopLength == 1)
+            {
+                Console.WriteLine("Pattern has reached a stable state (still life).");
+            }
+            else if (loopLength == 2)
+            {
+                Console.WriteLine("Pattern is oscillating with period 2 (blinker-like).");
+            }
+            else
+            {
+                Console.WriteLine($"Pattern is repeating with period {loopLength}.");
+            }
+
+            Console.WriteLine($"Loop started at generation {loopStart}.");
+            Console.WriteLine($"Current generation: {generationCount}");
+            Console.WriteLine("════════════════════");
         }
     }
 }
