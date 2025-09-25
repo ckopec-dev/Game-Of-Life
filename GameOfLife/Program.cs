@@ -6,6 +6,7 @@ namespace GameOfLife
         private const int GENERATION_DELAY = 25; // milliseconds
         private const int WIDTH = 140;
         private const int HEIGHT = 55;
+        private const double INITIAL_LIVE_PROBABILITY = 0.5; // Probability of a cell being alive at start
         private static readonly bool[,] grid = new bool[HEIGHT, WIDTH];
         private static readonly bool[,] nextGrid = new bool[HEIGHT, WIDTH];
         private static readonly List<string> gridHistory = [];
@@ -68,7 +69,7 @@ namespace GameOfLife
                 {
                     //grid[i, j] = false;
 
-                    if (rand.NextDouble() < 0.3) // 30% chance for each cell
+                    if (rand.NextDouble() < INITIAL_LIVE_PROBABILITY) // % chance for each cell
                     {
                         SetCell(i, j, true);
                     }
@@ -144,7 +145,25 @@ namespace GameOfLife
                 Console.Write("│");
                 for (int j = 0; j < WIDTH; j++)
                 {
+                    // Change color based on number of neighbors
+
+                    int neighbors = CountNeighbors(i, j);
+                    
+                    if (grid[i, j])
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+
+                        Console.ForegroundColor = neighbors switch
+                        {
+                            0 or 1 => ConsoleColor.DarkGray,// Underpopulation
+                            2 or 3 => ConsoleColor.Green,// Stable
+                            4 or 5 => ConsoleColor.Yellow,// Overpopulation
+                            _ => ConsoleColor.Red,// High overpopulation
+                        };
+                    }
+     
                     Console.Write(grid[i, j] ? "█" : " ");
+                    Console.ResetColor();
                 }
                 Console.WriteLine("│");
             }
@@ -178,12 +197,16 @@ namespace GameOfLife
                     // Apply Conway's Game of Life rules
                     if (currentCell)
                     {
-                        // Live cell with 2 or 3 neighbors survives
-                        nextGrid[i, j] = neighbors == 2 || neighbors == 3;
+                        // Original rule: Live cell with 2 or 3 neighbors survives
+                        //nextGrid[i, j] = neighbors == 2 || neighbors == 3;
+                        // Modified rule: 
+                        nextGrid[i, j] = neighbors >= 2 && neighbors <= 3;
                     }
                     else
                     {
-                        // Dead cell with exactly 3 neighbors becomes alive
+                        // Original rule: Dead cell with exactly 3 neighbors becomes alive
+                        //nextGrid[i, j] = neighbors == 3;
+                        // Modified rule: 
                         nextGrid[i, j] = neighbors == 3;
                     }
                 }
