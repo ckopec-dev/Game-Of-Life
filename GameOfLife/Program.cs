@@ -12,13 +12,11 @@ namespace GameOfLife
         private static readonly List<string> gridHistory = [];
         private static int loopStart = -1;
         private static int loopLength = -1;
-
+        
         static void Main()
         {
             Console.WriteLine("Conway's Game of Life");
-            // Console.WriteLine("Press any key to start, ESC to exit during simulation");
-            //            Console.ReadKey();
-
+            
             // Initialize with a simple pattern (Glider)
             InitializeGrid();
 
@@ -49,13 +47,14 @@ namespace GameOfLife
                 {
                     ConsoleKeyInfo key = Console.ReadKey(true);
                     if (key.Key == ConsoleKey.Escape)
+                    {
                         break;
+                    }
                 }
             }
 
             Console.CursorVisible = true;
-            // Console.WriteLine("\nGame ended. Press any key to exit.");
-            //            Console.ReadKey();
+            Console.WriteLine("Final population: " + GetPopulationCount());
         }
 
         static void InitializeGrid()
@@ -174,7 +173,10 @@ namespace GameOfLife
                 Console.Write("─");
             Console.WriteLine("┘");
 
-            Console.WriteLine("Generation: " + GetGenerationCount());
+            Console.WriteLine("Generation: {0}", GetGenerationCount());
+            int maxpop = WIDTH * HEIGHT;
+            string paddedpop = GetPopulationCount().ToString().PadRight(maxpop.ToString().Length, ' ');
+            Console.WriteLine("Population: {0}", paddedpop);
             Console.WriteLine("Press ESC to exit");
         }
 
@@ -182,6 +184,20 @@ namespace GameOfLife
         static int GetGenerationCount()
         {
             return generationCount;
+        }
+
+        static int GetPopulationCount()
+        {
+            int populationCount = 0;
+            for (int i = 0; i < HEIGHT; i++)
+            {
+                for (int j = 0; j < WIDTH; j++)
+                {
+                    if (grid[i, j])
+                        populationCount++;
+                }
+            }
+            return populationCount;
         }
 
         static void UpdateGrid()
