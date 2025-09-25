@@ -1,20 +1,19 @@
-using System;
-using System.Threading;
 
 namespace GameOfLife
 {
     class Program
     {
-        private const int Width = 50;
-        private const int Height = 30;
-        private static readonly bool[,] grid = new bool[Height, Width];
-        private static readonly bool[,] nextGrid = new bool[Height, Width];
+        private const int GENERATION_DELAY = 100; // milliseconds
+        private const int WIDTH = 140;
+        private const int HEIGHT = 60;
+        private static readonly bool[,] grid = new bool[HEIGHT, WIDTH];
+        private static readonly bool[,] nextGrid = new bool[HEIGHT, WIDTH];
 
         static void Main()
         {
             Console.WriteLine("Conway's Game of Life");
-            Console.WriteLine("Press any key to start, ESC to exit during simulation");
-            Console.ReadKey();
+            // Console.WriteLine("Press any key to start, ESC to exit during simulation");
+            //            Console.ReadKey();
 
             // Initialize with a simple pattern (Glider)
             InitializeGrid();
@@ -26,7 +25,7 @@ namespace GameOfLife
             {
                 DisplayGrid();
                 UpdateGrid();
-                Thread.Sleep(100); // Delay between generations
+                Thread.Sleep(GENERATION_DELAY); // Delay between generations
 
                 // Check for ESC key to exit
                 if (Console.KeyAvailable)
@@ -38,66 +37,77 @@ namespace GameOfLife
             }
 
             Console.CursorVisible = true;
-            Console.WriteLine("\nGame ended. Press any key to exit.");
-            Console.ReadKey();
+            // Console.WriteLine("\nGame ended. Press any key to exit.");
+            //            Console.ReadKey();
         }
 
         static void InitializeGrid()
         {
-            // Clear the grid
-            for (int i = 0; i < Height; i++)
-            {
-                for (int j = 0; j < Width; j++)
-                {
-                    grid[i, j] = false;
-                }
-            }
-
-            // Add some interesting patterns
-            
-            // Glider pattern
-            SetCell(1, 2, true);
-            SetCell(2, 3, true);
-            SetCell(3, 1, true);
-            SetCell(3, 2, true);
-            SetCell(3, 3, true);
-
-            // Blinker pattern
-            SetCell(10, 10, true);
-            SetCell(10, 11, true);
-            SetCell(10, 12, true);
-
-            // Block pattern (still life)
-            SetCell(15, 15, true);
-            SetCell(15, 16, true);
-            SetCell(16, 15, true);
-            SetCell(16, 16, true);
-
-            // Toad pattern (oscillator)
-            SetCell(5, 20, true);
-            SetCell(5, 21, true);
-            SetCell(5, 22, true);
-            SetCell(6, 19, true);
-            SetCell(6, 20, true);
-            SetCell(6, 21, true);
-
-            // Random pattern in one corner
             Random rand = new();
-            for (int i = Height - 10; i < Height - 2; i++)
+
+            // Set new random cells
+            for (int i = 0; i < HEIGHT; i++)
             {
-                for (int j = Width - 15; j < Width - 2; j++)
+                for (int j = 0; j < WIDTH; j++)
                 {
+                    //grid[i, j] = false;
+
                     if (rand.NextDouble() < 0.3) // 30% chance for each cell
                     {
                         SetCell(i, j, true);
                     }
+                    else
+                    {
+                        SetCell(i, j, false);
+                    }
                 }
             }
+
+            //// Add some interesting patterns
+            
+            //// Glider pattern
+            //SetCell(1, 2, true);
+            //SetCell(2, 3, true);
+            //SetCell(3, 1, true);
+            //SetCell(3, 2, true);
+            //SetCell(3, 3, true);
+
+            //// Blinker pattern
+            //SetCell(10, 10, true);
+            //SetCell(10, 11, true);
+            //SetCell(10, 12, true);
+
+            //// Block pattern (still life)
+            //SetCell(15, 15, true);
+            //SetCell(15, 16, true);
+            //SetCell(16, 15, true);
+            //SetCell(16, 16, true);
+
+            //// Toad pattern (oscillator)
+            //SetCell(5, 20, true);
+            //SetCell(5, 21, true);
+            //SetCell(5, 22, true);
+            //SetCell(6, 19, true);
+            //SetCell(6, 20, true);
+            //SetCell(6, 21, true);
+
+            //// Random pattern in one corner
+            //Random rand = new();
+            //for (int i = HEIGHT - 10; i < HEIGHT - 2; i++)
+            //{
+            //    for (int j = WIDTH - 15; j < WIDTH - 2; j++)
+            //    {
+            //        if (rand.NextDouble() < 0.3) // 30% chance for each cell
+            //        {
+            //            SetCell(i, j, true);
+            //        }
+            //    }
+            //}
         }
 
         static void SetCell(int row, int col, bool alive)
         {
-            if (row >= 0 && row < Height && col >= 0 && col < Width)
+            if (row >= 0 && row < HEIGHT && col >= 0 && col < WIDTH)
             {
                 grid[row, col] = alive;
             }
@@ -109,14 +119,14 @@ namespace GameOfLife
             
             // Top border
             Console.Write("┌");
-            for (int j = 0; j < Width; j++)
+            for (int j = 0; j < WIDTH; j++)
                 Console.Write("─");
             Console.WriteLine("┐");
 
-            for (int i = 0; i < Height; i++)
+            for (int i = 0; i < HEIGHT; i++)
             {
                 Console.Write("│");
-                for (int j = 0; j < Width; j++)
+                for (int j = 0; j < WIDTH; j++)
                 {
                     Console.Write(grid[i, j] ? "█" : " ");
                 }
@@ -125,7 +135,7 @@ namespace GameOfLife
 
             // Bottom border
             Console.Write("└");
-            for (int j = 0; j < Width; j++)
+            for (int j = 0; j < WIDTH; j++)
                 Console.Write("─");
             Console.WriteLine("┘");
 
@@ -142,9 +152,9 @@ namespace GameOfLife
         static void UpdateGrid()
         {
             // Calculate next generation
-            for (int i = 0; i < Height; i++)
+            for (int i = 0; i < HEIGHT; i++)
             {
-                for (int j = 0; j < Width; j++)
+                for (int j = 0; j < WIDTH; j++)
                 {
                     int neighbors = CountNeighbors(i, j);
                     bool currentCell = grid[i, j];
@@ -164,9 +174,9 @@ namespace GameOfLife
             }
 
             // Copy next generation to current grid
-            for (int i = 0; i < Height; i++)
+            for (int i = 0; i < HEIGHT; i++)
             {
-                for (int j = 0; j < Width; j++)
+                for (int j = 0; j < WIDTH; j++)
                 {
                     grid[i, j] = nextGrid[i, j];
                 }
@@ -192,8 +202,8 @@ namespace GameOfLife
                     int newCol = col + j;
 
                     // Check bounds and count living neighbors
-                    if (newRow >= 0 && newRow < Height && 
-                        newCol >= 0 && newCol < Width && 
+                    if (newRow >= 0 && newRow < HEIGHT && 
+                        newCol >= 0 && newCol < WIDTH && 
                         grid[newRow, newCol])
                     {
                         count++;
